@@ -11,6 +11,8 @@ describe('Centralde Atendimento ao Cliente TAT', () => {
 
   it('preenche os campos obrigatórios e envia o formulário', () => {
 
+    cy.clock()
+
     cy.get("#firstName")
       .as("first")
       .should("be.visible")
@@ -63,6 +65,11 @@ describe('Centralde Atendimento ao Cliente TAT', () => {
     cy.get('.success')
       .should('be.visible')
       .should('contain.text', 'Mensagem enviada com sucesso.')
+
+    cy.tick(3000)
+
+    cy.get('.success')
+      .should('not.be.visible')
   })
 
   it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => {
@@ -320,24 +327,26 @@ describe('Centralde Atendimento ao Cliente TAT', () => {
 
   })
 
-  it('marca ambos checkboxes, depois desmarca o último', () => {
+  Cypress._.times(5, () => {
+    it('marca ambos checkboxes, depois desmarca o último', () => {
 
-    cy.get('[type="checkbox"]')
-      .should('not.be.checked')
-      .each(($i) => {
-        cy.wrap($i).check().should("be.checked")
-      })
+      cy.get('[type="checkbox"]')
+        .should('not.be.checked')
+        .each(($i) => {
+          cy.wrap($i).check().should("be.checked")
+        })
 
-    cy.get('[type="checkbox"]').last().uncheck().should("not.be.checked")
+      cy.get('[type="checkbox"]').last().uncheck().should("not.be.checked")
 
-    /*  cy.get('[type="checkbox"]')
-    .check()
-    .should("be.checked")
-    .last()
-    .uncheck()
-    .should("not.be.checked")
-  })*/
+      /*  cy.get('[type="checkbox"]')
+      .check()
+      .should("be.checked")
+      .last()
+      .uncheck()
+      .should("not.be.checked")
+    })*/
 
+    })
   })
 
   it('seleciona um arquivo da pasta fixtures', () => {
@@ -391,8 +400,78 @@ describe('Centralde Atendimento ao Cliente TAT', () => {
     cy.contains('a', 'Política de privacidade')
     .invoke('removeAttr', 'target')
     .click()
-*/
+  */
 
   })
+
+  it('exibe e oculta as mensagens de sucesso e erro usando .invoke()', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
+
+  it('preenche o campo da área de texto usando o comando invoke', () => {
+
+    cy.get('#open-text-area').invoke('val', 'um texto qualquer')
+      .should('have.value', 'um texto qualquer')
+  })
+
+  it('exibe e oculta as mensagens de sucesso e erro usando .invoke()', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
+
+  it('preenche o campo da área de texto usando o comando invoke', () => {
+
+    cy.get('#open-text-area').invoke('val', 'um texto qualquer')
+      .should('have.value', 'um texto qualquer')
+  })
+
+
+  it('faz uma requisição HTTP', () => {
+
+    cy.request('https://cac-tat-v3.s3.eu-central-1.amazonaws.com/index.html')
+      .as('getRequest')
+      .its('status')
+      .should("be.equal", 200)
+    cy.get('@getRequest')
+      .its('statusText')
+      .should("be.equal", 'OK')
+    cy.get('@getRequest')
+      .its('body')
+      .should("include", 'CAC TAT')
+  })
+
+  it('encontre o gato', () => {
+
+    cy.get('#cat')
+      .invoke('show')
+      .should('be.visible')
+
+  })
+
 
 })
